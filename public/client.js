@@ -4,6 +4,8 @@ const urlParams = new URLSearchParams(queryString);
 var socket = io('https://socket.local.dv', {query: "room="+urlParams.get('room')})
 //var socket = io().connect('http://127.0.0.1:3000', {query: "room="+urlParams.get('room')});
 
+const player = document.getElementById('player');
+
 function in_array(what, where) {
     for (var i = 0; i < where.length; i++)
         if (what == where[i].id)
@@ -50,7 +52,48 @@ new Vue({
                     this.messages.push(infoMsg);
                 }
             }
+
+            navigator.mediaDevices.getUserMedia({audio: true})
+                .then(stream => {
+                    if (window.URL) {
+                        player.srcObject = stream;
+                    } else {
+                        player.src = stream;
+                    }
+
+                    const options = {mimeType: 'audio/webm'};
+                    const recordedChunks = [];
+                    const mediaRecorder = new MediaRecorder(stream, options);
+
+                    mediaRecorder.addEventListener('dataavailable', function(e) {
+                        if (e.data.size > 0) recordedChunks.push(e.data);
+                    });
+
+                    mediaRecorder.addEventListener('stop', function() {
+                        var blob = new Blob(recordedChunks, { 'type' : 'audio/ogg; codecs=opus' });
+                        socket.emit('radio', blob);
+                    });
+
+                    // Start recording
+                    mediaRecorder.start();
+
+                    // Stop recording after 5 seconds and broadcast it to server
+                    setTimeout(function() {
+                        mediaRecorder.stop()
+                        mediaRecorder.start();
+                    }, 5000);
+
+                })
+                .catch(err => document.write(err));
+
         }.bind(this));
+
+        socket.on('voice', function(arrayBuffer) {
+            var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
+            var audio = document.createElement('audio');
+            audio.src = window.URL.createObjectURL(blob);
+            audio.play();
+        });
 
         //if caht.message update messages array
         socket.on('chat.message', function (message) {

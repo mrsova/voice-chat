@@ -74,7 +74,10 @@ io.on('connection', function (socket) {
         //disconnected
         socket.broadcast.emit('user left', socket.id);
     })
-
+    socket.on('radio', function(blob) {
+        // can choose to broadcast it to whoever you want
+        socket.broadcast.emit('voice', blob);
+    });
 });
 
 
