@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  nginx_chat_voice:
+    container_name: chat.voice
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/project
+      - ./docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/sites-enabled:/etc/nginx/sites-enabled
+    environment:
+      VIRTUAL_HOST: ${DOCKER_SITE_URL}
+      HTTPS_METHOD: nohttp
+
+  nodejs:
+    container_name: chat.voice.node
+    command: "npm run start-dev"
+    image: node:10.17.0-jessie
+    working_dir: /var/www/project
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/var/www/project
+
+networks:
+  default:
+    external:
+      name: proxy_proxy

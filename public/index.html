@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Repa</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="main.css"/>
+</head>
+<body>
+<style>
+    [v-cloak] {
+        display: none;
+    }
+</style>
+<div id="app">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12" v-if="message.reg == false">
+                <h3>Введите ваше имя</h3>
+                <form @submit.prevent="sendReg">
+                    <div class="input-group">
+                        <span class="input-group-addon">@</span>
+                        <input type="text" name="username" class="form-control input-lg" placeholder="Ваше имя">
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-12" v-if="message.reg == true" v-cloak>
+                <div id="livechat-container">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <nav class="navbar navbar-default" role="navigation">
+                                <div class="container-fluid">
+                                    <!-- Brand and toggle get grouped for better mobile display -->
+                                    <div class="navbar-header">
+                                        <button type="button" class="navbar-toggle" data-toggle="collapse"
+                                                data-target="#bs-example-navbar-collapse-1">
+                                            <span class="sr-only">Toggle navigation</span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                            <span class="icon-bar"></span>
+                                        </button>
+                                        <a class="navbar-brand" href="#">Repa</a>
+                                    </div>
+
+                                    <!-- Collect the nav links, forms, and other content for toggling -->
+                                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                                        <ul class="nav navbar-nav">
+                                            <li class="dropdown">
+                                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Кто здесь? <b
+                                                        class="caret"></b></a>
+                                                <ul class="dropdown-menu">
+                                                    <div class="userlist" v-if="message.reg == true">
+                                                        <div class="panel-heading">
+                                                            <button type="button" class="btn btn-primary">Online ({{connectedUsers.length}})</button>
+                                                        </div>
+                                                        <ul class="nav nav-pills nav-stacked">
+                                                            <li v-for="user in connectedUsers">
+                                                                <a href="#"> {{ user.name }}&nbsp; <span v-if="userIsTyping(user.id)"  class="glyphicon glyphicon-pencil pencil">...</span></a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div><!-- /.navbar-collapse -->
+                                </div><!-- /.container-fluid -->
+                            </nav>
+                        </div>
+                        <div class="panel-body" id="panB">
+                            <ul class="chat" id="messages">
+                                <li v-for="message in messages" class="left clearfix">
+                                    <div v-if="message.type == 'info'" class="info">
+                                        {{ message.msg }}
+                                    </div>
+                                    <div v-if="message.type == 'chat'">
+                                                  <div class="chat-body clearfix">
+                                            <div class="header">
+                                                <strong class="primary-font">{{ message.user }}:</strong>
+                                                <small class="pull-right text-muted">
+                                                    <span class="glyphicon glyphicon-time"></span>&nbsp;{{
+                                                    message.timestamp
+                                                    }}
+                                                </small>
+                                            </div>
+                                            <p v-html="message.text">
+                                                {{ message.text }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                                <div v-for="user in connectedUsers" class="info">
+                                        <span v-if="userIsTyping(user.id)">
+                                             {{ user.name }} .. <span class="glyphicon glyphicon-pencil pencil"></span>
+                                        </span>
+                                </div>
+                            </ul>
+                        </div>
+                        <div class="panel-footer">
+                            <form @submit.prevent="send">
+                                <div class="input-group">
+                                    <input v-model="message.text" id="outMes" v-on:keyup="usersAreTyping"
+                                           v-on:keyup.13="stoppedTyping('13')" v-on:keyup.8="stoppedTyping('8')"
+                                           type="text" class="form-control input-lg" placeholder="Написать">
+                                    <div class="input-group-btn dropup">
+                                        <button type="button" class="btn btn-default btn-lg dropdown-toggle" data-toggle="dropdown">
+                                            <img src="/smile/smile.gif" alt="smile">
+                                        </button>
+                                        <ul class="dropdown-menu pull-right smile">
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <tr>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/acute.gif"
+                                                                             alt="acute"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/aggressive.gif"
+                                                                             alt="aggressive"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/bad.gif"
+                                                                             alt="bad"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/biggrin.gif"
+                                                                             alt="biggrin"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/blum1.gif"
+                                                                             alt="blum1"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/blum2.gif"
+                                                                             alt="blum2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/blush.gif"
+                                                                             alt="blush"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/bomb.gif"
+                                                                             alt="bomb"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/boredom.gif"
+                                                                             alt="boredom"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/bye.gif"
+                                                                             alt="bye"></a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/bye2.gif"
+                                                                             alt="bye2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/clapping.gif"
+                                                                             alt="clapping"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/congratulate.gif"
+                                                                             alt="congratulate"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/cool.gif"
+                                                                             alt="cool"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/cray.gif"
+                                                                             alt="cray"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/crazy.gif"
+                                                                             alt="crazy"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/dance.gif"
+                                                                             alt="dance"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/dance2.gif"
+                                                                             alt="dance2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/dash1.gif"
+                                                                             alt="dash1"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/diablo.gif"
+                                                                             alt="diablo"></a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/drinks.gif"
+                                                                             alt="drinks"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/empathy.gif"
+                                                                             alt="empathy"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/empathy2.gif"
+                                                                             alt="empathy2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/empathy3.gif"
+                                                                             alt="empathy3"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/flag_of_truce.gif"
+                                                                             alt="flag_of_truce"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/fool.gif"
+                                                                             alt="fool"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/fool2.gif"
+                                                                             alt="fool2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/fool3.gif"
+                                                                             alt="fool3"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/good.gif"
+                                                                             alt="good"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/good2.gif"
+                                                                             alt="good2"></a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/greeting.gif"
+                                                                             alt="greeting"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/help.gif"
+                                                                             alt="help"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/hi.gif"
+                                                                             alt="hi"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/hmm.gif"
+                                                                             alt="hmm"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/i_am_so_happy.gif"
+                                                                             alt="i_am_so_happy"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/lol.gif"
+                                                                             alt="lol"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/mad.gif"
+                                                                             alt="mad"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/mocking.gif"
+                                                                             alt="mocking"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/morning1.gif"
+                                                                             alt="mocking1"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/morning2.gif"
+                                                                             alt="mocking2"></a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/music.gif"
+                                                                             alt="music"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/nea.gif"
+                                                                             alt="nea"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/negative.gif"
+                                                                             alt="negative"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/new_russian.gif"
+                                                                             alt="new_russian"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/nyam1.gif"
+                                                                             alt="nyam1"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/nyam2.gif"
+                                                                             alt="nyam2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/ok.gif"
+                                                                             alt="ok"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/pardon.gif"
+                                                                             alt="pardon"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/playboy.gif"
+                                                                             alt="playboy"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/pleasantry.gif"
+                                                                             alt="pleasantry"></a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/praising.gif"
+                                                                             alt="praising"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/rofl.gif"
+                                                                             alt="rofl"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/rofl2.gif"
+                                                                             alt="rofl2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/rolleyes.gif"
+                                                                             alt="rolleyes"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/rolleyes2.gif" alt="rolleyes2"></a>
+                                                        </td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/sad.gif"
+                                                                             alt="sad"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/scare.gif"
+                                                                             alt="scare"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/scare3.gif"
+                                                                             alt="scare"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile"
+                                                                             src="/smile/scratch_one-s_head.gif"
+                                                                             alt="scratch_one-s_head"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/secret.gif"
+                                                                             alt="secret"></a></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/secret2.gif"
+                                                                             alt="secret2"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/shok.gif"
+                                                                             alt="shok"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/shout.gif"
+                                                                             alt="shout"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/smile.gif"
+                                                                             alt="smile"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/sorry.gif"
+                                                                             alt="sorry"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/stop.gif"
+                                                                             alt="stop"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/timeout.gif"
+                                                                             alt="timeout"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/unknown.gif"
+                                                                             alt="unknown"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/wink.gif"
+                                                                             alt="wink"></a></td>
+                                                        <td><a href="#"><img v-on:click="smile" src="/smile/yes.gif"
+                                                                             alt="yes"></a></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+<script src="client.js"></script>
+</body>
+</html>

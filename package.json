@@ -1,0 +1,16 @@
+{
+  "name": "chaty",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start-dev": "nodemon --inspect ./index.js 3000"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "circular-json": "^0.5.1",
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0",
+    "nodemon": "^1.18.3"
+  }
+}
