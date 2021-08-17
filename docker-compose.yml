@@ -13,13 +13,11 @@ services:
       VIRTUAL_HOST: ${DOCKER_SITE_URL}
       HTTPS_METHOD: nohttp
 
-  nodejs:
+  webSocketServer:
     container_name: chat.voice.node
     command: "npm run start-dev"
     image: node:10.17.0-jessie
     working_dir: /var/www/project
-    ports:
-      - "3000:3000"
     volumes:
       - .:/var/www/project
 

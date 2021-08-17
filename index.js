@@ -26,11 +26,6 @@ io.on('connection', function (socket) {
 
     socket.join(r);
 
-    socket.on('voice', function(message) {
-        // can choose to broadcast it to whoever you want
-        io.to(message.room).emit('voice', message.blob);
-    });
-
     //add name user
     socket.on('add nameuser', function (user) {
         room = {};
