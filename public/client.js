@@ -61,28 +61,15 @@ new Vue({
                         player.src = stream;
                     }
 
-                    const options = {mimeType: 'audio/webm'};
-                    const recordedChunks = [];
-                    const mediaRecorder = new MediaRecorder(stream, options);
+                    const mediaRecorder = new MediaRecorder(stream);
 
                     mediaRecorder.addEventListener('dataavailable', function(e) {
-                        if (e.data.size > 0) recordedChunks.push(e.data);
-                    });
-
-                    mediaRecorder.addEventListener('stop', function() {
-                        var blob = new Blob(recordedChunks, { 'type' : 'audio/ogg; codecs=opus' });
+                        var blob = new Blob([e.data], { 'type' : 'audio/ogg; codecs=opus' });
                         socket.emit('radio', blob);
                     });
 
                     // Start recording
-                    mediaRecorder.start();
-
-                    // Stop recording after 5 seconds and broadcast it to server
-                    setTimeout(function() {
-                        mediaRecorder.stop()
-                        mediaRecorder.start();
-                    }, 5000);
-
+                    mediaRecorder.start(100);
                 })
                 .catch(err => document.write(err));
 
